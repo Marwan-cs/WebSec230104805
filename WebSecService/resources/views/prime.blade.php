@@ -19,6 +19,8 @@
             @foreach (range(1, 100) as $i)
                 @if (isPrime($i))
                     <span class="badge bg-primary m-1">{{ $i }}</span>
+                @else
+                    <span class="badge bg-secondary">{{$i}}</span>    
                 @endif
             @endforeach
         </div>
