@@ -120,9 +120,9 @@ class UsersController extends Controller {
         return view('users.create');
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
+    public function store(Request $request) {
+   
+            $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
@@ -160,10 +160,18 @@ class UsersController extends Controller {
         return view('users.edit', compact('user', 'roles', 'permissions'));
     }
 
-    public function update(Request $request, $id)
-    {
+    public function update(Request $request, $id) {
         $user = User::findOrFail($id);
-        $user->update($request->all());
+
+        $data = $request->only(['name', 'email', 'admin']); // Only allow specific fields
+
+        // Update password only if provided
+        if ($request->filled('password')) {
+            $data['password'] = bcrypt($request->password);
+        }
+
+        $user->update($data);
+
         return redirect()->route('users.index')->with('success', 'User updated successfully');
     }
 
@@ -178,12 +186,20 @@ class UsersController extends Controller {
         if(auth()->id() != $user->id) {
             if(!auth()->user()->hasPermissionTo('show_users')) abort(401);
         }
+    
         $user->name = $request->name;
+    
+        // Update password only if provided
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->password);
+        }
+    
         if(auth()->user()->hasPermissionTo('edit_users')) {
             $user->syncRoles($request->roles ?? []);
             $user->syncPermissions($request->permissions ?? []);
             Artisan::call('cache:clear');
         }
+    
         $user->save();
         return redirect(route('profile', ['user' => $user->id]));
     }
@@ -210,25 +226,24 @@ class UsersController extends Controller {
         }
     }
 
-    public function updateProfile(Request $request)
-    {
-        $user = auth()->user();
-        
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
-        ]);
+    public function updateProfile(Request $request){
+            $user = auth()->user();
+            
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email,' . $user->id,
+                'password' => 'nullable|string|min:8|confirmed',
+            ]);
 
-        $user->name = $request->name;
-        $user->email = $request->email;
-        
-        if ($request->filled('password')) {
-            $user->password = bcrypt($request->password);
+            $user->name = $request->name;
+            $user->email = $request->email;
+            
+            if ($request->filled('password')) {
+                $user->password = bcrypt($request->password);
+            }
+
+            $user->save();
+
+            return redirect()->route('profile')->with('success', 'Profile updated successfully');
         }
-
-        $user->save();
-
-        return redirect()->route('profile')->with('success', 'Profile updated successfully');
-    }
 }

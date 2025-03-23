@@ -9,20 +9,16 @@ class AddAdminToUsersTable extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
+    public function up() {
+    
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('admin')->default(false);
+        $table->boolean('admin')->default(1)->change(); // Change default value to 1
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
+    public function down(){
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('admin');
+            $table->boolean('admin')->default(0)->change(); // Revert to default value 0
         });
     }
 }

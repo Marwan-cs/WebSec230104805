@@ -36,12 +36,8 @@ class RolesAndPermissionsSeeder extends Seeder
         $userRole->givePermissionTo(['view_profile', 'edit_profile']);
 
         $employeeRole = Role::create(['name' => 'employee']);
-        $employeeRole->givePermissionTo(['edit_profile']);
+        $employeeRole->givePermissionTo(['edit_profile' , 'view_profile' , 'view_users', 'edit_users',]);
 
-        // Assign admin role to specific user
-        $admin = User::where('email', 'marwan@gmail.com')->first();
-        if ($admin) {
-            $admin->assignRole('admin');
-        }
+        
     }
 }

@@ -5,27 +5,53 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
-class RolePermissionSeeder extends Seeder
+class AdminPermissionsSeeder extends Seeder
 {
     public function run()
     {
-        // Create permissions
-        Permission::create(['name' => 'view_users']);
-        Permission::create(['name' => 'edit_users']);
-        Permission::create(['name' => 'change_password']);
-        Permission::create(['name' => 'delete_users']);
-        Permission::create(['name' => 'view_profile']);
-        Permission::create(['name' => 'edit_profile']);
+        // Reset cached roles and permissions
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Create roles and assign permissions
-        $adminRole = Role::create(['name' => 'admin']);
-        $adminRole->givePermissionTo(['view_users', 'edit_users', 'change_password', 'delete_users']);
+        // Create or ensure permissions exist
+        $permissions = [
+            'view_users',
+            'edit_users',
+            'delete_users',
+            'create_users',
+            'view_products',
+            'edit_products',
+            'delete_products',
+            'create_products',
+            'manage_roles',
+            'view_reports',
+            'export_data',
+            'view_dashboard'
+        ];
 
-        $userRole = Role::create(['name' => 'user']);
-        $userRole->givePermissionTo(['view_profile', 'edit_profile']);
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
+        }
 
-        $employeeRole = Role::create(['name' => 'employee']);
-        $employeeRole->givePermissionTo(['edit_profile']);
+        // Get or create admin role
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        
+        // Assign all permissions to admin role
+        $adminRole->syncPermissions(Permission::all());
+
+        
+        if (!$admin) {
+            $admin = User::create([
+                'name' => 'Admin User',
+                'email' => 'admin@gmail.com',
+                'password' => Hash::make('yourpassword'),
+                // 'admin' => true // Ensure this field exists in your users table
+            ]);
+        }
+        
+        // Assign admin role to the user
+        $admin->assignRole('admin');
     }
 }

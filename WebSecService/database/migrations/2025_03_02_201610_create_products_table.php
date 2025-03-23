@@ -13,8 +13,12 @@ class CreateProductsTable extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->string('code')->nullable(); // Add the 'code' column
+            $table->string('model')->nullable(); // Add the 'model' column
             $table->string('name');
             $table->decimal('price', 8, 2);
+            $table->string('photo')->nullable(); // Add the 'photo' column
+            $table->text('description')->nullable(); // Add the 'description' column
             $table->timestamps();
         });
     }

@@ -55,10 +55,6 @@ Route::get('/multable', function () {
 
 Route::get('/bill', [billController::class, 'showBill'])->name('bill');
 
-Route::get('/TrancScript', function () {
-    return view('transcript');
-})->name('TrancScript');
-
 Route::get('/user', function () {
     return view('user');
 })->name('user');
