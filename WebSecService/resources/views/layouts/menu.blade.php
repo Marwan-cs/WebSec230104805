@@ -17,7 +17,7 @@
                 <a class="nav-link" href="{{ route('bill') }}">Mini Test</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ route('products.list') }}">Products List</a>
+                <a class="nav-link" href="{{ route('products_list') }}">Products List</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('users.index') }}">User List</a>

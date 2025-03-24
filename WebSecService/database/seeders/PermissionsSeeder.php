@@ -7,9 +7,20 @@ use Spatie\Permission\Models\Permission;
 
 class PermissionsSeeder extends Seeder
 {
-    public function run()
-    {
-        Permission::create(['name' => 'edit_users']);
-        // Add other permissions as needed
+    use Spatie\Permission\Models\Permission;
+
+    public function run() {
+        
+        $permissions = [
+            'edit_users',
+            'add_products',
+            'edit_products',
+            'delete_products',
+            'manage_stock',
+        ];
+
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
+        }
     }
 }

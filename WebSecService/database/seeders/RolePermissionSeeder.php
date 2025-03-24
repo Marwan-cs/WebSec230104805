@@ -15,7 +15,7 @@ class AdminPermissionsSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Create or ensure permissions exist
+        // Create or ensure permissions exist (added view_profile and edit_profile if needed)
         $permissions = [
             'view_users',
             'edit_users',
@@ -28,26 +28,36 @@ class AdminPermissionsSeeder extends Seeder
             'manage_roles',
             'view_reports',
             'export_data',
-            'view_dashboard'
+            'view_dashboard',
+            'manage_stock',
+            'view_profile',   // Added permission if required
+            'edit_profile',   // Added permission if required
         ];
 
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
+            Permission::firstOrCreate([
+                'name' => $permission,
+                'guard_name' => 'web'
+            ]);
         }
 
         // Get or create admin role
-        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $adminRole = Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'web'
+        ]);
         
         // Assign all permissions to admin role
         $adminRole->syncPermissions(Permission::all());
 
+        // Find or create admin user
+        $admin = User::where('email', 'admin@gmail.com')->first();
         
         if (!$admin) {
             $admin = User::create([
                 'name' => 'Admin User',
                 'email' => 'admin@gmail.com',
-                'password' => Hash::make('yourpassword'),
-                // 'admin' => true // Ensure this field exists in your users table
+                'password' => Hash::make('admin/2000'), // Better to use env('ADMIN_PASSWORD')
             ]);
         }
         

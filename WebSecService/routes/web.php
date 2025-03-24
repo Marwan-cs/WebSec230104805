@@ -9,13 +9,14 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TaskController;
 
+
 Route::get('products', [ProductsController::class, 'list'])->name('products_list');
 Route::get('products/edit/{product?}', [ProductsController::class, 'edit'])->name('products_edit');
 Route::post('products/save/{product?}', [ProductsController::class, 'save'])->name('products_save');
-Route::get('products/delete/{product}', [ProductsController::class, 'delete'])->name('products_delete');
+Route::delete('products/delete/{product}', [ProductsController::class, 'delete'])->name('products_delete');
 
-Route::get('/exam', [ExamController::class, 'index'])->name('exam.index');
-Route::post('/exam/submit', [ExamController::class, 'submit'])->name('exam.submit');
+Route::post('/products/{id}/purchase', [ProductsController::class, 'purchase'])->name('products.purchase');
+Route::put('/products/{id}/update-stock', [ProductsController::class, 'updateStock'])->name('products.update_stock');
 
 Route::get('register', [UsersController::class, 'register'])->name('register');
 Route::post('register', [UsersController::class, 'doRegister'])->name('do_register');
@@ -27,7 +28,6 @@ Route::get('profile', [UsersController::class, 'profile'])->name('profile');
 Route::post('profile/update-password', [UsersController::class, 'updatePassword'])->name('profile.update_password');
 
 Route::get('users/edit/{user?}', [UsersController::class, 'edit'])->name('users_edit');
-
 Route::post('users/save/{user}', [UsersController::class, 'save'])->name('users_save');
 
 Route::get('users', [UsersController::class, 'index'])->name('users.index');
@@ -63,8 +63,6 @@ Route::get('/grades', function () {
     return view('grades');
 })->name('grades');
 
-Route::get('products/list', [ProductsController::class, 'list'])->name('products.list');
-
 Route::middleware(['auth'])->group(function () {
     Route::middleware(['permission:view_users'])->get('/users', [UserController::class, 'index'])->name('users.index');
     Route::middleware(['permission:edit_users'])->post('/users', [UserController::class, 'store'])->name('users.store');
@@ -88,16 +86,10 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['permission:edit_profile'])->put('/profile', [UserController::class, 'updateProfile']);
 });
 
-Route::middleware(['auth', 'permission:edit_users'])->group(function () {
-    // Your protected routes here
-});
-
 Route::middleware(['auth'])->group(function () {
-    // User profile routes
     Route::get('/profile', [UsersController::class, 'profile'])->name('profile');
     Route::put('/profile/update', [UsersController::class, 'updateProfile'])->name('profile.update');
     
-    // Admin routes protected by role middleware
     Route::middleware(['role:admin'])->group(function () {
         Route::resource('users', UsersController::class);
     });

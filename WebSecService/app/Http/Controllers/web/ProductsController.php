@@ -36,6 +36,7 @@ class ProductsController extends Controller {
         $products = $query->get();
 
         return view('products.list', compact('products'));
+        
     }
 
     public function edit(Request $request, Product $product = null) {
@@ -70,5 +71,42 @@ class ProductsController extends Controller {
         }
         $product->delete();
         return redirect()->route('products_list');
+    }
+
+    public function purchase($id){
+    
+        $product = Product::findOrFail($id);
+
+        // Check if the product is in stock
+        if ($product->amount <= 0) {
+            return redirect()->back()->with('error', 'This product is out of stock.');
+        }
+
+        // Deduct the amount by 1 (assuming 1 unit is purchased)
+        $product->decrement('amount');
+
+        // Add logic for recording the purchase (e.g., create an order record)
+        // Example:
+        // Order::create([
+        //     'user_id' => auth()->id(),
+        //     'product_id' => $product->id,
+        //     'quantity' => 1,
+        //     'total_price' => $product->price,
+        // ]);
+
+        return redirect()->back()->with('success', 'Product purchased successfully!');
+    }
+
+    public function updateStock(Request $request, $id) {
+    
+        $request->validate([
+            'amount' => 'required|integer|min:0',
+        ]);
+
+        $product = Product::findOrFail($id);
+        $product->amount = $request->amount;
+        $product->save();
+
+        return redirect()->back()->with('success', 'Stock updated successfully!');
     }
 }

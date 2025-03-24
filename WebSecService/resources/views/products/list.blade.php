@@ -6,7 +6,7 @@
         <h1>Products</h1>
     </div>
     <div class="col col-2">
-        @role('admin') <!-- Only show for admin -->
+        @role(['admin', 'employee']) <!-- Only show for admin and employee -->
         <a href="{{ route('products_edit') }}" class="btn btn-success form-control">Add Product</a>
         @endrole
     </div>
@@ -59,7 +59,7 @@
                             <h3>{{ $product->name }}</h3>
                         </div>
                         <div class="col col-2">
-                            @role('admin') <!-- Only show for admin -->
+                            @role(['admin', 'employee']) <!-- Only show for admin and employee -->
                             <a href="{{ route('products_edit', $product->id) }}" class="btn btn-success form-control">Edit</a>
                             @endrole
                         </div>
@@ -76,7 +76,28 @@
                         <tr><th>Code</th><td>{{ $product->code }}</td></tr>
                         <tr><th>Price</th><td>{{ $product->price }}</td></tr>
                         <tr><th>Description</th><td>{{ $product->description }}</td></tr>
+                        <tr><th>Amount</th><td>{{ $product->amount }}</td></tr>
                     </table>
+
+                    <!-- Purchase Button -->
+                    <form action="{{ route('products.purchase', $product->id) }}" method="POST" class="mt-3">
+                        @csrf
+                        <button type="submit" class="btn btn-primary form-control" {{ $product->amount <= 0 ? 'disabled' : '' }}>
+                            {{ $product->amount <= 0 ? 'Out of Stock' : 'Purchase' }}
+                        </button>
+                    </form>
+
+                    <!-- Modify Stock Button (Admin and Employee Only) -->
+                    @role(['admin', 'employee'])
+                    <form action="{{ route('products.update_stock', $product->id) }}" method="POST" class="mt-2">
+                        @csrf
+                        @method('PUT')
+                        <div class="input-group">
+                            <input type="number" name="amount" class="form-control" placeholder="New Stock Amount" min="0" required>
+                            <button type="submit" class="btn btn-warning">Update Stock</button>
+                        </div>
+                    </form>
+                    @endrole
                 </div>
             </div>
         </div>
